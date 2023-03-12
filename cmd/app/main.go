@@ -4,8 +4,8 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
+	"go-message-kafka/internal/infra/akafka"
 	"go-message-kafka/internal/infra/repositories"
-	"go-message-kafka/internal/infra/repositories/akafka"
 	"go-message-kafka/internal/usecases"
 
 	"github.com/confluentinc/confluent-kafka-go/kafka"
