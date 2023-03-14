@@ -12,10 +12,11 @@ import (
 
 	"github.com/confluentinc/confluent-kafka-go/kafka"
 	"github.com/go-chi/chi/v5"
+	_ "github.com/go-sql-driver/mysql"
 )
 
 func main() {
-	db, err := sql.Open("mysql", "root:root@tcp(host.docker.internal:3306/products)")
+	db, err := sql.Open("mysql", "root:root@tcp(host.docker.internal:3306)/products")
 	if err != nil {
 		panic(err)
 	}
@@ -32,7 +33,7 @@ func main() {
 	r.Get("/products", productHandlers.ListProductsHanlder)
 
 	fmt.Println("start server on port 8000")
-	http.ListenAndServe(":8000", r)
+	go http.ListenAndServe(":8000", r)
 
 	msgChan := make(chan *kafka.Message)
 	go akafka.Consume([]string{"products"}, "host.docker.internal:9094", msgChan)
@@ -41,7 +42,7 @@ func main() {
 		dto := usecases.CreateProductInputDto{}
 		err := json.Unmarshal(msg.Value, &dto)
 		if err != nil {
-			fmt.Println("error to get messages from kafka")
+			fmt.Println("error to get messages from kafka", err)
 			continue
 		}
 		_, err = createProductUsecase.Execute(dto)
